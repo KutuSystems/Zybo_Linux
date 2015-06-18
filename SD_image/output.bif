@@ -1,0 +1,6 @@
+the_ROM_image:
+{
+	[bootloader]/home/haig/Zybo/Zybo_linux/Zybo_linux.sdk/FSBL/Debug/FSBL.elf
+	/home/haig/Zybo/Zybo_linux/Zybo_linux.sdk/top_zybo_hw_platform_0/top_zybo.bit
+	/home/haig/Zybo/Zybo_linux/SD_image/u-boot.elf
+}
