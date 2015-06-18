@@ -3,13 +3,13 @@
 set orig_proj_dir "."
 
 # Create project
-create_project -force Zybo_linux ../Zybo_linux
+create_project -force Zybo_Linux ../Zybo_Linux
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
 
 # Set project properties
-set obj [get_projects Zybo_linux]
+set obj [get_projects Zybo_Linux]
 set_property part xc7z010clg400-1 [current_project]
 set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj
@@ -65,7 +65,7 @@ if {[string equal [get_runs impl_1] ""]} {
 set obj [get_runs impl_1]
 
 
-puts "INFO: Project created:Zybo_linux"
+puts "INFO: Project created:Zybo_Linux"
 
 # Add IP location
 set_property ip_repo_paths  {../XilinxIP } [current_fileset]
@@ -75,11 +75,10 @@ update_ip_catalog
 source scripts/system_bd.tcl
 
 # Create block diagram wrapper
-make_wrapper -files [get_files ./Zybo_linux.srcs/sources_1/bd/system_bd/system_bd.bd] -top
-add_files -norecurse ./Zybo_linux.srcs/sources_1/bd/system_bd/hdl/system_bd_wrapper.vhd
+make_wrapper -files [get_files ./Zybo_Linux.srcs/sources_1/bd/system_bd/system_bd.bd] -top
+add_files -norecurse ./Zybo_Linux.srcs/sources_1/bd/system_bd/hdl/system_bd_wrapper.vhd
 update_compile_order -fileset sources_1
 
 # generate output products
 update_compile_order -fileset sources_1
-generate_target all [get_files  ./Zybo_linux.srcs/sources_1/bd/system_bd/system_bd.bd]
-
+generate_target all [get_files  ./Zybo_Linux.srcs/sources_1/bd/system_bd/system_bd.bd]
