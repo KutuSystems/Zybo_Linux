@@ -47,13 +47,13 @@ entity top_zybo is
       FIXED_IO_ps_srstb : inout std_logic;
 
       -- zybo I2S audio
-      AC_BCLK           : out std_logic_vector( 0 to 0 );
-      AC_MCLK           : out std_logic;
-      AC_MUTE_N         : out std_logic_vector( 0 to 0 );
-      AC_PBLRC          : out std_logic_vector( 0 to 0 );
-      AC_RECLRC         : out std_logic_vector( 0 to 0 );
-      AC_SDATA_I        : in std_logic;
-      AC_SDATA_O        : out std_logic_vector( 0 to 0 );
+--      AC_BCLK           : out std_logic_vector( 0 to 0 );
+--      AC_MCLK           : out std_logic;
+--      AC_MUTE_N         : out std_logic_vector( 0 to 0 );
+--      AC_PBLRC          : out std_logic_vector( 0 to 0 );
+--      AC_RECLRC         : out std_logic_vector( 0 to 0 );
+--      AC_SDATA_I        : in std_logic;
+--      AC_SDATA_O        : out std_logic_vector( 0 to 0 );
 
       -- hdmi port
       HDMI_CLK_N        : out std_logic;
@@ -77,7 +77,7 @@ entity top_zybo is
       btns_4bits_tri_i    : in std_logic_vector( 3 downto 0 );
       leds_4bits_tri_o   : out std_logic_vector( 3 downto 0 );
       sws_4bits_tri_i     : in std_logic_vector( 3 downto 0 );
-      
+
       --AD7913 I/O's
       clk_4_96MHz         : out std_logic;
       adc_sync            : out std_logic;
@@ -88,7 +88,7 @@ entity top_zybo is
       --UART
       uart_tx : out std_logic_vector(7 downto 0);
       uart_rx : in std_logic_vector(7 downto 0)
-      
+
    );
 end top_zybo;
 
@@ -149,7 +149,7 @@ architecture RTL of top_zybo is
    component axi4_lite_test
    port (
       resetn               : in std_logic;
-      clk                  : in std_logic; 
+      clk                  : in std_logic;
 
       -- write interface from system
       sys_wraddr           : in std_logic_vector(12 downto 2);                      -- address for reads/writes
@@ -163,11 +163,11 @@ architecture RTL of top_zybo is
 
       --adc I/O's
       clk_4_96MHz          : in std_logic;
-      sclk                 : out std_logic; 
-      CS                   : out std_logic; 
-      DIN                  : out std_logic;  
-      DOUT                 : in std_logic;  
-      
+      sclk                 : out std_logic;
+      CS                   : out std_logic;
+      DIN                  : out std_logic;
+      DOUT                 : in std_logic;
+
       --UART I/O's
       clk_200MHz           : in std_logic;
       uart_rx              : in std_logic_vector(7 downto 0);
@@ -175,7 +175,7 @@ architecture RTL of top_zybo is
    );
    end component;
 
-   signal sys_resetn       : std_logic;         
+   signal sys_resetn       : std_logic;
    signal sys_clk          : std_logic;                                          -- system clk (same as AXI clock
    signal clk_adc          : std_logic;                                          -- system clk (same as AXI clock
    signal sys_wraddr       : std_logic_vector(12 downto 2);                      -- address for reads/writes
@@ -191,16 +191,16 @@ architecture RTL of top_zybo is
    signal VGA_GREEN        : std_logic_vector(7 downto 0);
    signal VGA_RED          : std_logic_vector(7 downto 0);
 
-   signal gpio_led         : std_logic_vector(3 downto 0); 
-   signal count_reg        : std_logic_vector(27 downto 0); 
-   signal adc_alive        : std_logic;         
+   signal gpio_led         : std_logic_vector(3 downto 0);
+   signal count_reg        : std_logic_vector(27 downto 0);
+   signal adc_alive        : std_logic;
    signal adc_cnt          : std_logic_vector(2 downto 0);
    signal clk_buf          : std_logic;
    signal clk_200MHz       : std_logic;
-     
-   
+
+
 begin
-  
+
    system_bd_wrapper_1 : system_bd_wrapper
    port map (
       DDR_addr(14 downto 0)      => DDR_addr(14 downto 0),
@@ -236,7 +236,7 @@ begin
       HDMI_D2_N                  => HDMI_D2_N,
       HDMI_D2_P                  => HDMI_D2_P,
       HDMI_OEN                   => HDMI_OEN,
-     
+
       --i2c
       iic_0_scl_io               => iic_0_scl_io,
       iic_0_sda_io               => iic_0_sda_io,
@@ -245,7 +245,7 @@ begin
       sws_4bits_tri_i            => sws_4bits_tri_i,
       clk_200MHz                 => clk_200MHz,
       clk_adc                    => clk_adc,
-      
+
       sys_clk                    => sys_clk,
       sys_rd_cmd                 => sys_rd_cmd,       -- read strobe
       sys_rd_endcmd              => sys_rd_endcmd,    -- input read strobe
@@ -276,35 +276,35 @@ begin
       sclk                 => adc_sclk,
       CS                   => adc_CS,
       DIN                  => adc_DIN,
-      DOUT                 => adc_DOUT, 
-      
+      DOUT                 => adc_DOUT,
+
       --UART I/O's
       clk_200MHz           => clk_200MHz,
       uart_rx              => uart_rx,
       uart_tx              => uart_tx
    );
- 
-      -- alive led generation   
+
+      -- alive led generation
    process (sys_resetn,clk_adc)
    begin
       if rising_edge(clk_adc) then
          if sys_resetn = '0' then
-            count_reg   <= "0000000000000000000000000000"; 
+            count_reg   <= "0000000000000000000000000000";
             adc_alive   <= '0';
             leds_4bits_tri_o <= "1111";
          else
             count_reg <= count_reg + 1;
             adc_alive <= count_reg(27);
             leds_4bits_tri_o(3) <= adc_alive;
-            
+
         end if;
       end if;
    end process;
-   
-    adc_sync <= '1';  
-    --ADC 4.96MHz clock 
-    clk_4_96MHz <= clk_buf; 
-      
+
+    adc_sync <= '1';
+    --ADC 4.96MHz clock
+    clk_4_96MHz <= clk_buf;
+
     process (sys_resetn,clk_adc)
       begin
          if rising_edge(clk_adc) then
@@ -314,8 +314,8 @@ begin
                 clk_buf <= not clk_buf;
                 adc_cnt <= (others=>'0');
             end if;
-            
+
          end if;
       end process;
-      
+
 end RTL;

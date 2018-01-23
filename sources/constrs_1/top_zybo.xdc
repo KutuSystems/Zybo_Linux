@@ -146,7 +146,7 @@ set_property IOSTANDARD LVCMOS33 [get_ports {HDMI_OEN[0]}]
 #create_clock -period 6.667 -name clk_hdmi [get_pins system_bd_wrapper_1/system_bd_i/axi_hdmi_disp_0/U0/axi_dispctrl_1/PXL_CLK_O]
 create_clock -period 6.667 -name clk_hdmi [get_pins system_bd_wrapper_1/system_bd_i/axi_hdmi_disp_0/U0/axi_dispctrl_1/BUFR_inst/O]
 create_clock -period 1.667 -name clk_hdmi_5x [get_pins system_bd_wrapper_1/system_bd_i/axi_hdmi_disp_0/U0/axi_dispctrl_1/PXL_CLK_5X_O]
-create_clock -period 22.000 -name clk_adc [get_pins system_bd_wrapper_1/system_bd_i/clk_wiz_0/U0/clk_out1]
+create_clock -period 22.000 -name clk_adc [get_pins system_bd_wrapper_1/system_bd_i/clk_wiz_0/inst/clk_out1]
 ################
 # Clock Groups #
 ################
@@ -155,7 +155,3 @@ create_clock -period 22.000 -name clk_adc [get_pins system_bd_wrapper_1/system_b
 # There is no known phase relationship, hence they are treated  as asynchronous
 # clk_spdif is generated from clk75mhz, but is effectively asynchronous
 set_clock_groups -name async_clks -asynchronous -group {clk_fpga_0} -group {clk_fpga_1} -group {clk_fpga_2} -group {clk_adc} -group {clk_hdmi} -group {clk_hdmi_5x}
-
-
-
-
