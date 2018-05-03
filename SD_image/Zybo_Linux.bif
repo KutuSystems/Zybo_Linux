@@ -1,0 +1,7 @@
+//arch = zynq; split = false; format = BIN
+the_ROM_image:
+{
+	[bootloader]../Zybo_Linux.sdk/zynq_fsbl/Debug/zynq_fsbl.elf
+	../Zybo_Linux.sdk/top_zybo_hw_platform_0/top_zybo.bit
+	./u-boot.elf
+}
