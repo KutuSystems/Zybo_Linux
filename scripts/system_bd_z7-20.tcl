@@ -111,14 +111,12 @@ set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\
 xilinx.com:ip:axi_gpio:2.0\
-kutu.com.au:kutu:axi4_lite_controller:1.0\
 xilinx.com:ip:axi_protocol_converter:2.1\
 xilinx.com:ip:axi_vdma:6.3\
-xilinx.com:ip:clk_wiz:5.4\
-xilinx.com:ip:xlconstant:1.1\
 kutu.com.au:kutu:hdmi_display:1.0\
 xilinx.com:ip:proc_sys_reset:5.0\
 xilinx.com:ip:processing_system7:5.5\
+xilinx.com:ip:xlconstant:1.1\
 "
 
    set list_ips_missing ""
@@ -192,16 +190,10 @@ proc create_root_design { parentCell } {
   # Create ports
   set FCLK_RESET0_N [ create_bd_port -dir O -from 0 -to 0 -type rst FCLK_RESET0_N ]
   set HDMI_OEN [ create_bd_port -dir O -from 0 -to 0 HDMI_OEN ]
+  set clk_100MHz [ create_bd_port -dir O -type clk clk_100MHz ]
+  set clk_148MHz [ create_bd_port -dir O clk_148MHz ]
   set clk_200MHz [ create_bd_port -dir O -type clk clk_200MHz ]
-  set clk_adc [ create_bd_port -dir O -type clk clk_adc ]
-  set sys_clk [ create_bd_port -dir O sys_clk ]
-  set sys_rd_cmd [ create_bd_port -dir O sys_rd_cmd ]
-  set sys_rd_endcmd [ create_bd_port -dir I sys_rd_endcmd ]
-  set sys_rdaddr [ create_bd_port -dir O -from 12 -to 2 sys_rdaddr ]
-  set sys_rddata [ create_bd_port -dir I -from 31 -to 0 sys_rddata ]
-  set sys_wr_cmd [ create_bd_port -dir O sys_wr_cmd ]
-  set sys_wraddr [ create_bd_port -dir O -from 12 -to 2 sys_wraddr ]
-  set sys_wrdata [ create_bd_port -dir O -from 31 -to 0 sys_wrdata ]
+  set clk_video [ create_bd_port -dir O clk_video ]
 
   # Create instance: BTNs_4Bits, and set properties
   set BTNs_4Bits [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 BTNs_4Bits ]
@@ -216,14 +208,6 @@ proc create_root_design { parentCell } {
    CONFIG.C_ALL_INPUTS {1} \
    CONFIG.C_GPIO_WIDTH {4} \
  ] $SWs_4Bits
-
-  # Create instance: axi4_lite_controller_0, and set properties
-  set axi4_lite_controller_0 [ create_bd_cell -type ip -vlnv kutu.com.au:kutu:axi4_lite_controller:1.0 axi4_lite_controller_0 ]
-
-  set_property -dict [ list \
-   CONFIG.NUM_READ_OUTSTANDING {1} \
-   CONFIG.NUM_WRITE_OUTSTANDING {1} \
- ] [get_bd_intf_pins /axi4_lite_controller_0/S_AXI_LITE]
 
   # Create instance: axi_mem_intercon, and set properties
   set axi_mem_intercon [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_mem_intercon ]
@@ -251,24 +235,6 @@ proc create_root_design { parentCell } {
    CONFIG.c_mm2s_max_burst_length {16} \
    CONFIG.c_use_mm2s_fsync {1} \
  ] $axi_vdma_hdmi
-
-  # Create instance: clk_wiz_0, and set properties
-  set clk_wiz_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:5.4 clk_wiz_0 ]
-  set_property -dict [ list \
-   CONFIG.CLKOUT1_JITTER {432.364} \
-   CONFIG.CLKOUT1_PHASE_ERROR {346.848} \
-   CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {40.96} \
-   CONFIG.PRIMITIVE {MMCM} \
-   CONFIG.USE_LOCKED {false} \
-   CONFIG.USE_PHASE_ALIGNMENT {false} \
-   CONFIG.USE_RESET {false} \
- ] $clk_wiz_0
-
-  # Create instance: ground, and set properties
-  set ground [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 ground ]
-  set_property -dict [ list \
-   CONFIG.CONST_VAL {0} \
- ] $ground
 
   # Create instance: hdmi_display_0, and set properties
   set hdmi_display_0 [ create_bd_cell -type ip -vlnv kutu.com.au:kutu:hdmi_display:1.0 hdmi_display_0 ]
@@ -964,7 +930,7 @@ proc create_root_design { parentCell } {
    CONFIG.M05_HAS_REGSLICE {4} \
    CONFIG.M06_HAS_REGSLICE {4} \
    CONFIG.M07_HAS_REGSLICE {4} \
-   CONFIG.NUM_MI {4} \
+   CONFIG.NUM_MI {3} \
    CONFIG.STRATEGY {1} \
  ] $processing_system7_0_axi_periph
 
@@ -990,41 +956,30 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net processing_system7_0_IIC_0 [get_bd_intf_ports IIC_0] [get_bd_intf_pins processing_system7_0/IIC_0]
   connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP0 [get_bd_intf_pins axi_protocol_converter_0/M_AXI] [get_bd_intf_pins processing_system7_0_axi_periph/S00_AXI]
   connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP1 [get_bd_intf_pins axi_protocol_converter_0/S_AXI] [get_bd_intf_pins processing_system7_0/M_AXI_GP0]
-  connect_bd_intf_net -intf_net processing_system7_0_axi_periph_M00_AXI [get_bd_intf_pins axi4_lite_controller_0/S_AXI_LITE] [get_bd_intf_pins processing_system7_0_axi_periph/M00_AXI]
+  connect_bd_intf_net -intf_net processing_system7_0_axi_periph_M00_AXI [get_bd_intf_pins axi_vdma_hdmi/S_AXI_LITE] [get_bd_intf_pins processing_system7_0_axi_periph/M00_AXI]
   connect_bd_intf_net -intf_net processing_system7_0_axi_periph_M01_AXI [get_bd_intf_pins BTNs_4Bits/S_AXI] [get_bd_intf_pins processing_system7_0_axi_periph/M01_AXI]
   connect_bd_intf_net -intf_net processing_system7_0_axi_periph_M02_AXI [get_bd_intf_pins SWs_4Bits/S_AXI] [get_bd_intf_pins processing_system7_0_axi_periph/M02_AXI]
-  connect_bd_intf_net -intf_net processing_system7_0_axi_periph_M03_AXI [get_bd_intf_pins axi_vdma_hdmi/S_AXI_LITE] [get_bd_intf_pins processing_system7_0_axi_periph/M03_AXI]
 
   # Create port connections
-  connect_bd_net -net axi4_lite_controller_0_sys_clk [get_bd_ports sys_clk] [get_bd_pins axi4_lite_controller_0/sys_clk]
-  connect_bd_net -net axi4_lite_controller_0_sys_rd_cmd [get_bd_ports sys_rd_cmd] [get_bd_pins axi4_lite_controller_0/sys_rd_cmd]
-  connect_bd_net -net axi4_lite_controller_0_sys_rdaddr [get_bd_ports sys_rdaddr] [get_bd_pins axi4_lite_controller_0/sys_rdaddr]
-  connect_bd_net -net axi4_lite_controller_0_sys_wr_cmd [get_bd_ports sys_wr_cmd] [get_bd_pins axi4_lite_controller_0/sys_wr_cmd]
-  connect_bd_net -net axi4_lite_controller_0_sys_wraddr [get_bd_ports sys_wraddr] [get_bd_pins axi4_lite_controller_0/sys_wraddr]
-  connect_bd_net -net axi4_lite_controller_0_sys_wrdata [get_bd_ports sys_wrdata] [get_bd_pins axi4_lite_controller_0/sys_wrdata]
-  connect_bd_net -net axi_dispctrl_1_PXL_CLK_O [get_bd_pins axi_vdma_hdmi/m_axis_mm2s_aclk] [get_bd_pins hdmi_display_0/s_axis_mm2s_aclk] [get_bd_pins proc_sys_reset_2/slowest_sync_clk]
-  connect_bd_net -net clk_wiz_0_clk_out1 [get_bd_ports clk_adc] [get_bd_pins clk_wiz_0/clk_out1]
+  connect_bd_net -net axi_dispctrl_1_PXL_CLK_O [get_bd_ports clk_video] [get_bd_pins axi_vdma_hdmi/m_axis_mm2s_aclk] [get_bd_pins hdmi_display_0/s_axis_mm2s_aclk] [get_bd_pins proc_sys_reset_2/slowest_sync_clk]
   connect_bd_net -net hdmi_display_0_fsync [get_bd_pins axi_vdma_hdmi/mm2s_fsync] [get_bd_pins hdmi_display_0/fsync]
-  connect_bd_net -net proc_sys_reset_0_interconnect_aresetn [get_bd_pins axi_protocol_converter_0/aresetn] [get_bd_pins proc_sys_reset_0/interconnect_aresetn] [get_bd_pins processing_system7_0_axi_periph/ARESETN] [get_bd_pins processing_system7_0_axi_periph/M00_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M01_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M02_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M03_ARESETN] [get_bd_pins processing_system7_0_axi_periph/S00_ARESETN]
-  connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_ports FCLK_RESET0_N] [get_bd_pins BTNs_4Bits/s_axi_aresetn] [get_bd_pins SWs_4Bits/s_axi_aresetn] [get_bd_pins axi4_lite_controller_0/S_AXI_LITE_ARESETN] [get_bd_pins axi_vdma_hdmi/axi_resetn] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
+  connect_bd_net -net proc_sys_reset_0_interconnect_aresetn [get_bd_pins axi_protocol_converter_0/aresetn] [get_bd_pins proc_sys_reset_0/interconnect_aresetn] [get_bd_pins processing_system7_0_axi_periph/ARESETN] [get_bd_pins processing_system7_0_axi_periph/M00_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M01_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M02_ARESETN] [get_bd_pins processing_system7_0_axi_periph/S00_ARESETN]
+  connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_ports FCLK_RESET0_N] [get_bd_pins BTNs_4Bits/s_axi_aresetn] [get_bd_pins SWs_4Bits/s_axi_aresetn] [get_bd_pins axi_vdma_hdmi/axi_resetn] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
+  connect_bd_net -net proc_sys_reset_0_peripheral_reset [get_bd_pins hdmi_display_0/reset] [get_bd_pins proc_sys_reset_0/peripheral_reset]
   connect_bd_net -net proc_sys_reset_1_interconnect_aresetn [get_bd_pins axi_mem_intercon/ARESETN] [get_bd_pins axi_mem_intercon/M00_ARESETN] [get_bd_pins axi_mem_intercon/S00_ARESETN] [get_bd_pins proc_sys_reset_1/interconnect_aresetn]
   connect_bd_net -net proc_sys_reset_2_peripheral_aresetn [get_bd_pins hdmi_display_0/s_axis_mm2s_aresetn] [get_bd_pins proc_sys_reset_2/peripheral_aresetn]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins BTNs_4Bits/s_axi_aclk] [get_bd_pins SWs_4Bits/s_axi_aclk] [get_bd_pins axi4_lite_controller_0/S_AXI_LITE_ACLK] [get_bd_pins axi_protocol_converter_0/aclk] [get_bd_pins axi_vdma_hdmi/s_axi_lite_aclk] [get_bd_pins clk_wiz_0/clk_in1] [get_bd_pins hdmi_display_0/ref_clk] [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0_axi_periph/ACLK] [get_bd_pins processing_system7_0_axi_periph/M00_ACLK] [get_bd_pins processing_system7_0_axi_periph/M01_ACLK] [get_bd_pins processing_system7_0_axi_periph/M02_ACLK] [get_bd_pins processing_system7_0_axi_periph/M03_ACLK] [get_bd_pins processing_system7_0_axi_periph/S00_ACLK]
-  connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_pins axi_mem_intercon/ACLK] [get_bd_pins axi_mem_intercon/M00_ACLK] [get_bd_pins axi_mem_intercon/S00_ACLK] [get_bd_pins axi_vdma_hdmi/m_axi_mm2s_aclk] [get_bd_pins proc_sys_reset_1/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK1] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_ports clk_100MHz] [get_bd_pins BTNs_4Bits/s_axi_aclk] [get_bd_pins SWs_4Bits/s_axi_aclk] [get_bd_pins axi_protocol_converter_0/aclk] [get_bd_pins axi_vdma_hdmi/s_axi_lite_aclk] [get_bd_pins hdmi_display_0/ref_clk] [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0_axi_periph/ACLK] [get_bd_pins processing_system7_0_axi_periph/M00_ACLK] [get_bd_pins processing_system7_0_axi_periph/M01_ACLK] [get_bd_pins processing_system7_0_axi_periph/M02_ACLK] [get_bd_pins processing_system7_0_axi_periph/S00_ACLK]
+  connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_ports clk_148MHz] [get_bd_pins axi_mem_intercon/ACLK] [get_bd_pins axi_mem_intercon/M00_ACLK] [get_bd_pins axi_mem_intercon/S00_ACLK] [get_bd_pins axi_vdma_hdmi/m_axi_mm2s_aclk] [get_bd_pins proc_sys_reset_1/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK1] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK]
   connect_bd_net -net processing_system7_0_FCLK_CLK2 [get_bd_ports clk_200MHz] [get_bd_pins processing_system7_0/FCLK_CLK2]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins proc_sys_reset_0/ext_reset_in] [get_bd_pins proc_sys_reset_2/ext_reset_in] [get_bd_pins processing_system7_0/FCLK_RESET0_N]
   connect_bd_net -net processing_system7_0_FCLK_RESET1_N [get_bd_pins proc_sys_reset_1/ext_reset_in] [get_bd_pins processing_system7_0/FCLK_RESET1_N]
-  connect_bd_net -net sys_rd_endcmd_1 [get_bd_ports sys_rd_endcmd] [get_bd_pins axi4_lite_controller_0/sys_rd_endcmd]
-  connect_bd_net -net sys_rddata_1 [get_bd_ports sys_rddata] [get_bd_pins axi4_lite_controller_0/sys_rddata]
   connect_bd_net -net vdd_const [get_bd_ports HDMI_OEN] [get_bd_pins vdd/dout]
-  connect_bd_net -net xlconstant_0_const [get_bd_pins ground/dout] [get_bd_pins hdmi_display_0/reset]
   connect_bd_net -net xlconstant_0_const1 [get_bd_pins axi_vdma_hdmi/mm2s_frame_ptr_in] [get_bd_pins xlconstant_0/dout]
 
   # Create address segments
   create_bd_addr_seg -range 0x20000000 -offset 0x00000000 [get_bd_addr_spaces axi_vdma_hdmi/Data_MM2S] [get_bd_addr_segs processing_system7_0/S_AXI_HP0/HP0_DDR_LOWOCM] SEG_processing_system7_0_HP0_DDR_LOWOCM
   create_bd_addr_seg -range 0x00010000 -offset 0x41210000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs BTNs_4Bits/S_AXI/Reg] SEG_BTNs_4Bits_Reg
   create_bd_addr_seg -range 0x00010000 -offset 0x41200000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs SWs_4Bits/S_AXI/Reg] SEG_SWs_4Bits_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x43C20000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi4_lite_controller_0/S_AXI_LITE/reg0] SEG_axi4_lite_controller_0_reg0
   create_bd_addr_seg -range 0x00010000 -offset 0x43000000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_vdma_hdmi/S_AXI_LITE/Reg] SEG_axi_vdma_hdmi_Reg
 
 

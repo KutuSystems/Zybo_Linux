@@ -15,13 +15,6 @@ set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj
 
 add_files -norecurse sources/sources_1/top_zybo/top_zybo.vhd
-add_files -norecurse sources/sources_1/test/axi4_lite_test.vhd
-add_files -norecurse sources/sources_1/ad7193/ad7193.vhd
-add_files -norecurse sources/sources_1/packages/counter_pkg.vhd
-add_files -norecurse sources/sources_1/fifos/sync_srl_fifo.vhd
-add_files -norecurse sources/sources_1/uart/uart.vhd
-add_files -norecurse sources/sources_1/uart/uart_rx_module.vhd
-add_files -norecurse sources/sources_1/uart/uart_tx_module.vhd
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
@@ -33,7 +26,7 @@ if {[string equal [get_filesets constrs_1] ""]} {
 }
 
 # Add files to 'constrs_1' fileset
-add_files -norecurse sources/constrs_1/top_zybo.xdc
+add_files -norecurse sources/constrs_1/top_zybo_z7-20.xdc
 
 # Set 'constrs_1' fileset file properties for remote files
 # None
