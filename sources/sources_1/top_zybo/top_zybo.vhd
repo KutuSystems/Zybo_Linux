@@ -135,7 +135,6 @@ architecture RTL of top_zybo is
    signal clk_148MHz_sig   : std_logic;
    signal clk_200MHz_sig   : std_logic;
    signal clk_video_sig    : std_logic;
-   signal clk_video_buf    : std_logic;
 
 begin
 
@@ -184,7 +183,7 @@ begin
       clk_100MHz                 => clk_100MHz_sig,
       clk_148MHz                 => clk_148MHz_sig,
       clk_200MHz                 => clk_200MHz_sig,
-      clk_video                  => clk_video_buf
+      clk_video                  => clk_video_sig
     );
 
    clk_100MHz  <= clk_100MHz_sig;
@@ -230,14 +229,6 @@ begin
          end if;
       end if;
    end process;
-
-   BUFG_inst : BUFG
-   port map
-   (
-      O     => clk_video_sig,
-      I     => clk_video_buf
-   -- 1-bit input: Clock input (connect to an IBUF or BUFMR).
-   );
 
    -- clock led generation
    process (clk_video_sig)
