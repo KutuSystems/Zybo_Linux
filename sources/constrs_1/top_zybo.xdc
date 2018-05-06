@@ -47,7 +47,6 @@ set_property PACKAGE_PIN F17 [get_ports {HDMI_OEN[0]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {HDMI_OEN[0]}]
 
 
-
 ####################
 # Generated Clocks #
 ####################
@@ -55,12 +54,14 @@ set_property IOSTANDARD LVCMOS33 [get_ports {HDMI_OEN[0]}]
 # clocks for hdmi output
 
 create_clock -period 1.667 -name clk_mmcm [get_pins system_bd_wrapper_1/system_bd_i/hdmi_display_0/U0/hdmi_tx_1/clock_gen_1/MMCME2_BASE_inst/CLKOUT1]
+create_clock -period 1.667 -name clk_hdmi_5x [get_pins system_bd_wrapper_1/system_bd_i/hdmi_display_0/U0/hdmi_tx_1/clock_gen_1/BUFIO_inst/O]
 
 create_clock -period 6.667 -name clk_hdmi [get_pins system_bd_wrapper_1/system_bd_i/hdmi_display_0/U0/hdmi_tx_1/clock_gen_1/BUFR_inst/O]
-create_clock -period 1.667 -name clk_hdmi_5x [get_pins system_bd_wrapper_1/system_bd_i/hdmi_display_0/U0/hdmi_tx_1/clock_gen_1/BUFIO_inst/O]
+create_clock -period 6.667 -name clk_148 [get_pins system_bd_wrapper_1/system_bd_i/hdmi_display_0/U0/hdmi_tx_1/clock_gen_1/BUFG_inst/O]
 
 ################
 # Clock Groups #
 ################
 
-set_clock_groups -name async_clks -asynchronous -group {clk_fpga_0} -group {clk_fpga_1} -group {clk_fpga_2} -group {clk_adc} -group {clk_hdmi} -group {clk_hdmi_5x} -group {clk_mmcm}
+set_clock_groups -name async_clks -asynchronous -group {clk_fpga_0} -group {clk_fpga_1} -group {clk_fpga_2} -group {clk_hdmi_5x} -group {clk_mmcm} -group {clk_148}
+set_clock_groups -name async_clks2 -asynchronous -group {clk_fpga_0} -group {clk_fpga_1} -group {clk_fpga_2} -group {clk_hdmi_5x} -group {clk_mmcm} -group {clk_hdmi}

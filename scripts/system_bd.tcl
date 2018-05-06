@@ -17,7 +17,6 @@ proc get_script_folder {} {
 variable script_folder
 set script_folder [_tcl::get_script_folder]
 
-
 ################################################################
 # START
 ################################################################
@@ -240,7 +239,7 @@ proc create_root_design { parentCell } {
   # Create instance: hdmi_display_0, and set properties
   set hdmi_display_0 [ create_bd_cell -type ip -vlnv kutu.com.au:kutu:hdmi_display:1.0 hdmi_display_0 ]
   set_property -dict [ list \
-   CONFIG.REFERENCE_CLOCK {100} \
+   CONFIG.REFERENCE_CLOCK {125} \
    CONFIG.USR_RED {255} \
  ] $hdmi_display_0
 
@@ -271,7 +270,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_ACT_ENET0_PERIPHERAL_FREQMHZ {125.000000} \
    CONFIG.PCW_ACT_ENET1_PERIPHERAL_FREQMHZ {10.000000} \
    CONFIG.PCW_ACT_FPGA0_PERIPHERAL_FREQMHZ {100.000000} \
-   CONFIG.PCW_ACT_FPGA1_PERIPHERAL_FREQMHZ {150.000000} \
+   CONFIG.PCW_ACT_FPGA1_PERIPHERAL_FREQMHZ {125.000000} \
    CONFIG.PCW_ACT_FPGA2_PERIPHERAL_FREQMHZ {200.000000} \
    CONFIG.PCW_ACT_FPGA3_PERIPHERAL_FREQMHZ {10.000000} \
    CONFIG.PCW_ACT_PCAP_PERIPHERAL_FREQMHZ {200.000000} \
@@ -306,7 +305,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_CAN_PERIPHERAL_FREQMHZ {100} \
    CONFIG.PCW_CAN_PERIPHERAL_VALID {0} \
    CONFIG.PCW_CLK0_FREQ {100000000} \
-   CONFIG.PCW_CLK1_FREQ {150000000} \
+   CONFIG.PCW_CLK1_FREQ {125000000} \
    CONFIG.PCW_CLK2_FREQ {200000000} \
    CONFIG.PCW_CLK3_FREQ {10000000} \
    CONFIG.PCW_CPU_CPU_6X4X_MAX_RANGE {667} \
@@ -408,9 +407,9 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_FCLK0_PERIPHERAL_CLKSRC {IO PLL} \
    CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR0 {5} \
    CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR1 {2} \
-   CONFIG.PCW_FCLK1_PERIPHERAL_CLKSRC {DDR PLL} \
-   CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR0 {7} \
-   CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR1 {1} \
+   CONFIG.PCW_FCLK1_PERIPHERAL_CLKSRC {IO PLL} \
+   CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR0 {4} \
+   CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR1 {2} \
    CONFIG.PCW_FCLK2_PERIPHERAL_CLKSRC {IO PLL} \
    CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR0 {5} \
    CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR1 {1} \
@@ -422,7 +421,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_FCLK_CLK2_BUF {TRUE} \
    CONFIG.PCW_FCLK_CLK3_BUF {FALSE} \
    CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {100} \
-   CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {148.5} \
+   CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {125} \
    CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {200} \
    CONFIG.PCW_FPGA3_PERIPHERAL_FREQMHZ {200} \
    CONFIG.PCW_FPGA_FCLK0_ENABLE {1} \
@@ -906,15 +905,17 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net processing_system7_0_axi_periph_M02_AXI [get_bd_intf_pins SWs_4Bits/S_AXI] [get_bd_intf_pins processing_system7_0_axi_periph/M02_AXI]
 
   # Create port connections
-  connect_bd_net -net axi_dispctrl_1_PXL_CLK_O [get_bd_ports clk_video] [get_bd_pins axi_vdma_hdmi/m_axis_mm2s_aclk] [get_bd_pins hdmi_display_0/s_axis_mm2s_aclk] [get_bd_pins proc_sys_reset_2/slowest_sync_clk]
+  connect_bd_net -net axi_dispctrl_1_PXL_CLK_O [get_bd_ports clk_video] [get_bd_pins axi_mem_intercon/ACLK] [get_bd_pins axi_mem_intercon/M00_ACLK] [get_bd_pins axi_mem_intercon/S00_ACLK] [get_bd_pins axi_vdma_hdmi/m_axi_mm2s_aclk] [get_bd_pins axi_vdma_hdmi/m_axis_mm2s_aclk] [get_bd_pins hdmi_display_0/s_axis_mm2s_aclk] [get_bd_pins proc_sys_reset_2/slowest_sync_clk] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK]
+  connect_bd_net -net hdmi_display_0_dcm_locked [get_bd_pins hdmi_display_0/dcm_locked] [get_bd_pins proc_sys_reset_2/dcm_locked]
   connect_bd_net -net hdmi_display_0_fsync [get_bd_pins axi_vdma_hdmi/mm2s_fsync] [get_bd_pins hdmi_display_0/fsync]
   connect_bd_net -net proc_sys_reset_0_interconnect_aresetn [get_bd_pins axi_protocol_converter_0/aresetn] [get_bd_pins proc_sys_reset_0/interconnect_aresetn] [get_bd_pins processing_system7_0_axi_periph/ARESETN] [get_bd_pins processing_system7_0_axi_periph/M00_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M01_ARESETN] [get_bd_pins processing_system7_0_axi_periph/M02_ARESETN] [get_bd_pins processing_system7_0_axi_periph/S00_ARESETN]
   connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_ports FCLK_RESET0_N] [get_bd_pins BTNs_4Bits/s_axi_aresetn] [get_bd_pins SWs_4Bits/s_axi_aresetn] [get_bd_pins axi_vdma_hdmi/axi_resetn] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
   connect_bd_net -net proc_sys_reset_0_peripheral_reset [get_bd_pins hdmi_display_0/reset] [get_bd_pins proc_sys_reset_0/peripheral_reset]
-  connect_bd_net -net proc_sys_reset_1_interconnect_aresetn [get_bd_pins axi_mem_intercon/ARESETN] [get_bd_pins axi_mem_intercon/M00_ARESETN] [get_bd_pins axi_mem_intercon/S00_ARESETN] [get_bd_pins proc_sys_reset_1/interconnect_aresetn]
-  connect_bd_net -net proc_sys_reset_2_peripheral_aresetn [get_bd_pins hdmi_display_0/s_axis_mm2s_aresetn] [get_bd_pins proc_sys_reset_2/peripheral_aresetn]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_ports clk_100Mhz] [get_bd_pins BTNs_4Bits/s_axi_aclk] [get_bd_pins SWs_4Bits/s_axi_aclk] [get_bd_pins axi_protocol_converter_0/aclk] [get_bd_pins axi_vdma_hdmi/s_axi_lite_aclk] [get_bd_pins hdmi_display_0/ref_clk] [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0_axi_periph/ACLK] [get_bd_pins processing_system7_0_axi_periph/M00_ACLK] [get_bd_pins processing_system7_0_axi_periph/M01_ACLK] [get_bd_pins processing_system7_0_axi_periph/M02_ACLK] [get_bd_pins processing_system7_0_axi_periph/S00_ACLK]
-  connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_ports clk_148MHz] [get_bd_pins axi_mem_intercon/ACLK] [get_bd_pins axi_mem_intercon/M00_ACLK] [get_bd_pins axi_mem_intercon/S00_ACLK] [get_bd_pins axi_vdma_hdmi/m_axi_mm2s_aclk] [get_bd_pins proc_sys_reset_1/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK1] [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK]
+  connect_bd_net -net proc_sys_reset_1_peripheral_aresetn [get_bd_pins hdmi_display_0/ref_aresetn] [get_bd_pins proc_sys_reset_1/peripheral_aresetn]
+  connect_bd_net -net proc_sys_reset_2_interconnect_aresetn [get_bd_pins axi_mem_intercon/ARESETN] [get_bd_pins axi_mem_intercon/M00_ARESETN] [get_bd_pins axi_mem_intercon/S00_ARESETN] [get_bd_pins proc_sys_reset_2/interconnect_aresetn]
+  connect_bd_net -net proc_sys_reset_2_peripheral_aresetn [get_bd_pins proc_sys_reset_2/peripheral_aresetn]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_ports clk_100Mhz] [get_bd_pins BTNs_4Bits/s_axi_aclk] [get_bd_pins SWs_4Bits/s_axi_aclk] [get_bd_pins axi_protocol_converter_0/aclk] [get_bd_pins axi_vdma_hdmi/s_axi_lite_aclk] [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins processing_system7_0_axi_periph/ACLK] [get_bd_pins processing_system7_0_axi_periph/M00_ACLK] [get_bd_pins processing_system7_0_axi_periph/M01_ACLK] [get_bd_pins processing_system7_0_axi_periph/M02_ACLK] [get_bd_pins processing_system7_0_axi_periph/S00_ACLK]
+  connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_ports clk_148MHz] [get_bd_pins hdmi_display_0/ref_clk] [get_bd_pins proc_sys_reset_1/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK1]
   connect_bd_net -net processing_system7_0_FCLK_CLK2 [get_bd_ports clk_200MHz] [get_bd_pins processing_system7_0/FCLK_CLK2]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins proc_sys_reset_0/ext_reset_in] [get_bd_pins proc_sys_reset_2/ext_reset_in] [get_bd_pins processing_system7_0/FCLK_RESET0_N]
   connect_bd_net -net processing_system7_0_FCLK_RESET1_N [get_bd_pins proc_sys_reset_1/ext_reset_in] [get_bd_pins processing_system7_0/FCLK_RESET1_N]
